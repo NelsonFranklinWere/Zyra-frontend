@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react'
+import { X, Mail, Lock, User, Phone, Eye, EyeOff, Clock, RefreshCw } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -34,7 +34,7 @@ interface AuthModalProps {
   defaultMode?: 'login' | 'signup'
 }
 
-type AuthMode = 'login' | 'signup' | 'otp-email' | 'otp-sms'
+type AuthMode = 'login' | 'signup' | 'otp-email' | 'otp-sms' | 'forgot-password' | 'reset-password'
 
 export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: AuthModalProps) {
   type AuthPayload = { token: string; user: any }
@@ -43,6 +43,9 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
   const [isLoading, setIsLoading] = useState(false)
   const [userEmail, setUserEmail] = useState('')
   const [userPhone, setUserPhone] = useState('')
+  const [otpTimer, setOtpTimer] = useState(0) // Timer in seconds
+  const [canResendOTP, setCanResendOTP] = useState(false)
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const { login } = useAuth()
 
   // Forms
@@ -158,7 +161,42 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
     window.location.href = apiClient.getGoogleAuthUrl()
   }
 
-  const handleSendOTP = async (type: 'email' | 'sms') => {
+  // OTP Timer Management
+  useEffect(() => {
+    if (mode === 'otp-email' || mode === 'otp-sms') {
+      // Start timer when entering OTP mode
+      setOtpTimer(180) // 3 minutes
+      setCanResendOTP(false)
+      
+      timerIntervalRef.current = setInterval(() => {
+        setOtpTimer((prev) => {
+          if (prev <= 1) {
+            setCanResendOTP(true)
+            if (timerIntervalRef.current) {
+              clearInterval(timerIntervalRef.current)
+            }
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current)
+      }
+    }
+  }, [mode])
+
+  // Format timer display
+  const formatTimer = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const handleSendOTP = async (type: 'email' | 'sms', isResend = false) => {
     setIsLoading(true)
     try {
       const result = type === 'email' 
@@ -166,9 +204,29 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
         : await apiClient.sendSMSOTP(userPhone)
       
       if (result.success) {
-        toast.success(`OTP sent to your ${type}`)
+        toast.success(isResend ? `New OTP sent to your ${type}` : `OTP sent to your ${type}`)
+        // Reset timer
+        setOtpTimer(180)
+        setCanResendOTP(false)
+        
+        // Restart timer
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current)
+        }
+        timerIntervalRef.current = setInterval(() => {
+          setOtpTimer((prev) => {
+            if (prev <= 1) {
+              setCanResendOTP(true)
+              if (timerIntervalRef.current) {
+                clearInterval(timerIntervalRef.current)
+              }
+              return 0
+            }
+            return prev - 1
+          })
+        }, 1000)
       } else {
-        toast.error(result.message)
+        toast.error(result.message || `Failed to send OTP to ${type}`)
       }
     } catch (error) {
       toast.error(`Failed to send OTP to ${type}`)
@@ -469,12 +527,18 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
             {(mode === 'otp-email' || mode === 'otp-sms') && (
               <form onSubmit={otpForm.handleSubmit(handleVerifyOTP)} className="space-y-6">
                 <div className="text-center mb-6">
-                  <p className="text-zyra-text-secondary">
+                  <p className="text-zyra-text-secondary mb-2">
                     We sent a 6-digit code to{' '}
                     <span className="text-zyra-cyan-blue font-medium">
                       {mode === 'otp-email' ? userEmail : userPhone}
                     </span>
                   </p>
+                  {otpTimer > 0 && (
+                    <div className="flex items-center justify-center gap-2 text-sm text-zyra-text-secondary">
+                      <Clock className="w-4 h-4" />
+                      <span>Code expires in <span className="font-semibold text-zyra-cyan-blue">{formatTimer(otpTimer)}</span></span>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -485,6 +549,8 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                     {...otpForm.register('otpCode')}
                     type="text"
                     maxLength={6}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-center text-2xl tracking-widest"
                     placeholder="000000"
                   />
@@ -506,10 +572,16 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                 <div className="text-center space-y-2">
                   <button
                     type="button"
-                    onClick={() => handleSendOTP(mode === 'otp-email' ? 'email' : 'sms')}
-                    className="text-zyra-cyan-blue hover:text-zyra-electric-violet transition-colors"
+                    onClick={() => handleSendOTP(mode === 'otp-email' ? 'email' : 'sms', true)}
+                    disabled={!canResendOTP || isLoading}
+                    className={`flex items-center justify-center gap-2 mx-auto transition-colors ${
+                      canResendOTP 
+                        ? 'text-zyra-cyan-blue hover:text-zyra-electric-violet' 
+                        : 'text-zyra-text-secondary cursor-not-allowed'
+                    }`}
                   >
-                    Resend Code
+                    <RefreshCw className={`w-4 h-4 ${!canResendOTP ? 'animate-spin' : ''}`} />
+                    {canResendOTP ? 'Resend Code' : `Resend in ${formatTimer(otpTimer)}`}
                   </button>
                   <div>
                     <button

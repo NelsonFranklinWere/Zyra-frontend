@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    "clean": "rm -rf .next node_modules/.cache",
+    "verify": "npm run type-check && npm run lint && npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
