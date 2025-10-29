@@ -107,7 +107,18 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
           try {
             const profileResult = await apiClient.getProfile()
             if (profileResult.success && profileResult.data) {
-              login(token, profileResult.data)
+              const userData = profileResult.data as {
+                id: string
+                email: string
+                firstName: string
+                lastName: string
+                role: string
+                isVerified: boolean
+                phoneVerified?: boolean
+                avatarUrl?: string
+                preferences?: any
+              }
+              login(token, userData)
               toast.success('Account created successfully!')
               onClose()
             } else {
