@@ -1,12 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { 
   Brain, 
-  Zap, 
-  Sparkles, 
   BarChart3, 
   Workflow, 
   MessageSquare,
@@ -14,7 +11,7 @@ import {
   Menu,
   X,
   User,
-  LogOut
+  Sparkles
 } from "lucide-react"
 import { useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
@@ -23,8 +20,7 @@ import AuthModal from "@/components/auth/auth-modal"
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <motion.header 
@@ -94,64 +90,25 @@ export const Header = () => {
               <MessageSquare className="w-4 h-4 group-hover:animate-pulse" />
               <span className="font-medium">AI Chat</span>
             </Link>
-            <Link 
-              href="/blog" 
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
-            >
-              <Zap className="w-4 h-4 group-hover:animate-pulse" />
-              <span className="font-medium">Blog</span>
-            </Link>
-            <Link
-              href="/docs" 
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
-            >
-              <Sparkles className="w-4 h-4 group-hover:animate-pulse" />
-              <span className="font-medium">Docs</span>
-            </Link>
           </nav>
           
-          {/* Desktop CTA */}
+          {/* Desktop User Info / Get Started Button */}
           <div className="hidden lg:flex items-center space-x-4">
             {user ? (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-zyra-text-secondary">
-                  <User className="w-4 h-4" />
-                  <span className="font-medium">{user.firstName} {user.lastName}</span>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  onClick={logout}
-                  className="text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
+              <div className="flex items-center space-x-2 text-zyra-text-secondary">
+                <User className="w-4 h-4" />
+                <span className="font-medium">{user.firstName} {user.lastName}</span>
               </div>
             ) : (
-              <>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => {
-                    setAuthMode('login');
-                    setShowAuthModal(true);
-                  }}
-                  className="text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300"
-                >
-                  Sign In
-                </Button>
-                <motion.button 
-                  onClick={() => {
-                    setAuthMode('signup');
-                    setShowAuthModal(true);
-                  }}
-                  className="neon-button flex items-center space-x-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Get Started</span>
-                </motion.button>
-              </>
+              <motion.button 
+                onClick={() => setShowAuthModal(true)}
+                className="neon-button flex items-center space-x-2 px-6 py-2.5 rounded-xl font-semibold"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Get Started</span>
+              </motion.button>
             )}
           </div>
 
@@ -221,69 +178,24 @@ export const Header = () => {
                 <MessageSquare className="w-5 h-5 group-hover:animate-pulse" />
                 <span className="font-medium">AI Chat</span>
               </Link>
-              <Link 
-                href="/blog" 
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Zap className="w-5 h-5 group-hover:animate-pulse" />
-                <span className="font-medium">Blog</span>
-              </Link>
-              <Link 
-                href="/docs" 
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 group"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
-                <span className="font-medium">Docs</span>
-              </Link>
-              <div className="flex flex-col space-y-2 mt-4 pt-4 border-t border-zyra-glass-border">
-                {user ? (
-                  <>
-                    <div className="flex items-center space-x-2 text-zyra-text-secondary px-4 py-2">
-                      <User className="w-4 h-4" />
-                      <span className="font-medium">{user.firstName} {user.lastName}</span>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      onClick={() => {
-                        logout();
-                        setIsMenuOpen(false);
-                      }}
-                      className="text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 justify-start"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button 
-                      variant="ghost" 
-                      onClick={() => {
-                        setAuthMode('login');
-                        setShowAuthModal(true);
-                        setIsMenuOpen(false);
-                      }}
-                      className="text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300 justify-start"
-                    >
-                      Sign In
-                    </Button>
-                    <motion.button 
-                      onClick={() => {
-                        setAuthMode('signup');
-                        setShowAuthModal(true);
-                        setIsMenuOpen(false);
-                      }}
-                      className="neon-button flex items-center justify-center space-x-2"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      <span>Get Started</span>
-                    </motion.button>
-                  </>
-                )}
-              </div>
+              {user ? (
+                <div className="flex items-center space-x-2 text-zyra-text-secondary px-4 py-3 mt-4 pt-4 border-t border-zyra-glass-border">
+                  <User className="w-4 h-4" />
+                  <span className="font-medium">{user.firstName} {user.lastName}</span>
+                </div>
+              ) : (
+                <motion.button 
+                  onClick={() => {
+                    setShowAuthModal(true);
+                    setIsMenuOpen(false);
+                  }}
+                  className="neon-button flex items-center justify-center space-x-2 mt-4 pt-4 border-t border-zyra-glass-border mx-4"
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Get Started</span>
+                </motion.button>
+              )}
             </nav>
           </div>
         </motion.div>
@@ -293,7 +205,7 @@ export const Header = () => {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        defaultMode={authMode}
+        defaultMode="login"
       />
     </motion.header>
   )
