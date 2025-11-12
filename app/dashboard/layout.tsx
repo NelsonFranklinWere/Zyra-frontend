@@ -2,18 +2,31 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { ChevronRight, ChevronLeft } from 'lucide-react'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { TopBar } from '@/components/dashboard/top-bar'
 import { FloatingAssistant } from '@/components/dashboard/floating-assistant'
 import { useAuth } from '@/contexts/auth-context'
+import { AIAssistantProvider } from '@/contexts/ai-assistant-context'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  // On desktop, sidebar should be visible by default
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const { user } = useAuth()
+
+  const handleSidebarClose = () => {
+    if (typeof window !== 'undefined') {
+      const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+      if (isDesktop) {
+        return
+      }
+    }
+    setSidebarOpen(false)
+  }
 
   if (!user) {
     return (
@@ -31,6 +44,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
+    <AIAssistantProvider>
     <div className="min-h-screen bg-zyra-gradient">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -41,17 +55,37 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main Layout */}
       <div className="relative z-10 flex h-screen">
-        {/* Sidebar */}
-        <motion.div
-          initial={{ x: -300, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-            lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-30 w-64 
-            glass-sidebar border-r border-zyra-glass-border`}
+        {/* Floating Nav Toggle (mobile) */}
+        <motion.button
+          onClick={() => setSidebarOpen((prev) => !prev)}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="lg:hidden fixed left-3 top-20 z-40 p-2 rounded-lg bg-white/10 border border-white/15 hover:bg-white/15 backdrop-blur-md"
+          aria-label={sidebarOpen ? 'Close navigation' : 'Open navigation'}
         >
-          <Sidebar onClose={() => setSidebarOpen(false)} />
-        </motion.div>
+          {sidebarOpen ? (
+            <ChevronLeft className="w-5 h-5 text-white" />
+          ) : (
+            <ChevronRight className="w-5 h-5 text-white" />
+          )}
+        </motion.button>
+        {/* Sidebar - Always visible on desktop, toggleable on mobile */}
+        <motion.aside
+          initial={false}
+          animate={{ 
+            x: sidebarOpen ? 0 : -300, 
+            opacity: sidebarOpen ? 1 : 0
+          }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+            fixed lg:translate-x-0 lg:opacity-100
+            inset-y-0 left-0 z-30 w-64 
+            glass-sidebar border-r border-zyra-glass-border
+            flex-shrink-0`}
+        >
+          <Sidebar onClose={handleSidebarClose} />
+        </motion.aside>
 
         {/* Overlay for mobile */}
         {sidebarOpen && (
@@ -65,12 +99,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Top Bar */}
-          <TopBar 
-            onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-            user={user}
-          />
+        <div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
+          {/* Top Bar - Always visible on desktop */}
+          <div className="relative z-10">
+            <TopBar 
+              onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+              user={user}
+            />
+          </div>
 
           {/* Page Content */}
           <main className="flex-1 overflow-auto p-6">
@@ -89,5 +125,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Floating AI Assistant */}
       <FloatingAssistant />
     </div>
+    </AIAssistantProvider>
   )
 }

@@ -38,9 +38,9 @@ const stats = [
     trend: 'up'
   },
   {
-    title: 'Data Insights',
-    value: '89',
-    change: '+12 this week',
+    title: 'Analytics Reports',
+    value: '32',
+    change: '+7 this week',
     icon: BarChart3,
     color: 'zyra-violet',
     trend: 'up'
@@ -67,10 +67,10 @@ const recentActivities = [
   {
     id: 3,
     type: 'insight',
-    title: 'New Data Insight Available',
-    description: 'Q4 performance analysis completed',
-    time: '1 hour ago',
-    status: 'info'
+    title: 'Analytics AI Report Generated',
+    description: 'Sales trend and growth opportunities identified for October dataset',
+    time: '15 minutes ago',
+    status: 'success'
   },
   {
     id: 4,
@@ -126,16 +126,16 @@ export default function OverviewPage() {
           Welcome Back!
         </h1>
         <p className="text-zyra-text-secondary text-lg">
-          Here's what's happening with your Zyra automations and AI tools.
+          Track automations, content, and now full Analytics AI insights in one command center.
         </p>
       </motion.div>
 
-      {/* Stats Grid */}
+      {/* Stats Grid - 4 in one row on small screens */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6"
       >
         {stats.map((stat, index) => (
           <motion.div
@@ -143,20 +143,20 @@ export default function OverviewPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-            className="glass-card p-6 rounded-2xl border border-zyra-glass-border"
+            className="glass-card p-3 sm:p-4 md:p-6 rounded-xl md:rounded-2xl border border-zyra-glass-border"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-xl bg-${stat.color}/20 border border-${stat.color}/30`}>
-                <stat.icon className={`w-6 h-6 text-${stat.color}`} />
+            <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+              <div className={`p-2 sm:p-3 rounded-xl bg-${stat.color}/20 border border-${stat.color}/30`}>
+                <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-${stat.color}`} />
               </div>
               <div className="flex items-center space-x-1">
-                <TrendingUp className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-green-400">{stat.change}</span>
+                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
+                <span className="text-[10px] sm:text-xs md:text-sm text-green-400">{stat.change}</span>
               </div>
             </div>
             <div>
-              <h3 className="text-3xl font-bold text-white mb-1">{stat.value}</h3>
-              <p className="text-zyra-text-secondary">{stat.title}</p>
+              <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1 sm:mb-2 leading-tight">{stat.value}</h3>
+              <p className="text-[10px] sm:text-xs md:text-sm text-zyra-text-secondary leading-tight">{stat.title}</p>
             </div>
           </motion.div>
         ))}

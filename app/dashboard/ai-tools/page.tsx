@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { 
   FileText, 
@@ -36,7 +37,7 @@ const aiTools = [
     status: 'active'
   },
   {
-    id: 'data-insights',
+    id: 'analytics',
     title: 'Data Insights',
     description: 'Analyze your data and get actionable insights',
     icon: BarChart3,
@@ -74,7 +75,7 @@ const recentGenerations = [
   },
   {
     id: 3,
-    type: 'insights',
+    type: 'analytics',
     title: 'Q4 Sales Analysis',
     description: 'Revenue insights and recommendations',
     timestamp: '1 day ago',
@@ -91,7 +92,13 @@ const recentGenerations = [
 ]
 
 export default function AIToolsPage() {
+  const router = useRouter()
   const [selectedTool, setSelectedTool] = useState<string | null>(null)
+
+  const handleUseTool = (toolId: string, e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
+    router.push(`/dashboard/ai-tools/${toolId}`)
+  }
 
   return (
     <div className="space-y-8">
@@ -121,7 +128,7 @@ export default function AIToolsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="grid grid-cols-2 md:grid-cols-2 gap-4 sm:gap-6"
       >
         {aiTools.map((tool, index) => (
           <motion.div
@@ -129,7 +136,7 @@ export default function AIToolsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-            className={`glass-card p-6 rounded-2xl border border-zyra-glass-border cursor-pointer transition-all duration-300 ${
+            className={`glass-card p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border border-zyra-glass-border cursor-pointer transition-all duration-300 ${
               selectedTool === tool.id 
                 ? `border-${tool.color}/50 bg-${tool.color}/10` 
                 : 'hover:bg-white/5'
@@ -138,46 +145,47 @@ export default function AIToolsPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className={`p-3 rounded-xl bg-${tool.color}/20 border border-${tool.color}/30`}>
-                <tool.icon className={`w-6 h-6 text-${tool.color}`} />
+            <div className="flex items-start justify-between mb-2 sm:mb-4">
+              <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-${tool.color}/20 border border-${tool.color}/30`}>
+                <tool.icon className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-${tool.color}`} />
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1 sm:space-x-2">
                 {tool.status === 'beta' && (
-                  <span className="px-2 py-1 text-xs bg-yellow-500/20 text-yellow-400 rounded-full border border-yellow-500/30">
+                  <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs bg-yellow-500/20 text-yellow-400 rounded-full border border-yellow-500/30">
                     Beta
                   </span>
                 )}
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full animate-pulse" />
               </div>
             </div>
             
-            <h3 className="text-xl font-semibold text-white mb-2">{tool.title}</h3>
-            <p className="text-zyra-text-secondary mb-4">{tool.description}</p>
+            <h3 className="text-sm sm:text-base md:text-xl font-semibold text-white mb-1 sm:mb-2 line-clamp-1">{tool.title}</h3>
+            <p className="text-[10px] sm:text-xs md:text-sm text-zyra-text-secondary mb-2 sm:mb-4 line-clamp-2">{tool.description}</p>
             
-            <div className="space-y-2">
-              {tool.features.map((feature, featureIndex) => (
+            <div className="space-y-1 sm:space-y-2 hidden sm:block">
+              {tool.features.slice(0, 2).map((feature, featureIndex) => (
                 <div key={featureIndex} className="flex items-center space-x-2">
-                  <Sparkles className="w-4 h-4 text-zyra-cyan-blue" />
-                  <span className="text-sm text-zyra-text-secondary">{feature}</span>
+                  <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-zyra-cyan-blue flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs md:text-sm text-zyra-text-secondary line-clamp-1">{feature}</span>
                 </div>
               ))}
             </div>
 
-            <div className="mt-6 flex items-center space-x-3">
+            <div className="mt-3 sm:mt-4 md:mt-6 flex items-center space-x-2 sm:space-x-3">
               <motion.button
-                className="flex-1 bg-zyra-electric-violet text-white py-2 px-4 rounded-lg font-semibold hover:bg-zyra-electric-violet/90 transition-colors"
+                onClick={(e) => handleUseTool(tool.id, e)}
+                className="flex-1 bg-zyra-electric-violet text-white py-1.5 sm:py-2 px-2 sm:px-4 rounded-lg text-xs sm:text-sm md:text-base font-semibold hover:bg-zyra-electric-violet/90 transition-colors"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 Use Tool
               </motion.button>
               <motion.button
-                className="p-2 rounded-lg bg-white/5 border border-white/10 text-zyra-text-secondary hover:text-white hover:bg-white/10 transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg bg-white/5 border border-white/10 text-zyra-text-secondary hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Edit className="w-4 h-4" />
+                <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
               </motion.button>
             </div>
           </motion.div>

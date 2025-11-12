@@ -6,7 +6,7 @@ import { Brain, Zap, Sparkles, ArrowRight, Play } from "lucide-react"
 
 export const Hero = () => {
   return (
-    <section className="relative py-32 px-4 overflow-hidden">
+    <section className="relative pt-32 pb-12 sm:pb-16 md:pb-20 px-4 overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-72 bg-electric-teal/10 rounded-full blur-3xl animate-float"></div>
@@ -51,16 +51,16 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-lg text-soft-silver-dark mb-12 max-w-3xl mx-auto"
+          className="text-lg text-soft-silver-dark mb-6 sm:mb-8 max-w-3xl mx-auto"
         >
-          Using AI-driven data processing, language intelligence, and cross-platform distribution to make every product reach the right person at the right time — targeting diverse audiences including kids, youth, millennials, parents, and all demographics.
+          Using AI-driven data processing, language intelligence, and cross-platform distribution to make every product reach the right person at the right time targeting diverse audiences including kids, youth, millennials, parents, and all demographics.
         </motion.p>
 
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+          className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-4 sm:mb-6"
         >
           <Button 
             size="lg" 
@@ -86,30 +86,30 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.0 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20"
+          className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 lg:gap-8 mt-4 sm:mt-6 md:mt-8"
         >
-          <div className="glass-effect rounded-2xl p-6 border border-electric-teal/20 hover:border-electric-teal/40 transition-all duration-300">
-            <div className="w-12 h-12 bg-electric-gradient rounded-xl flex items-center justify-center mb-4 mx-auto neon-glow">
-              <Brain className="w-6 h-6 text-deep-space" />
+          <div className="glass-effect rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-electric-teal/20 hover:border-electric-teal/40 transition-all duration-300">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-electric-gradient rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 md:mb-4 mx-auto neon-glow">
+              <Brain className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-deep-space" />
             </div>
-            <h3 className="text-xl font-semibold text-electric-teal mb-2">AI Persona Engine</h3>
-            <p className="text-soft-silver-dark">Analyze customer data to create detailed buyer personas and identify high-conversion targets</p>
+            <h3 className="text-xs sm:text-sm md:text-base lg:text-xl font-semibold text-electric-teal mb-1 sm:mb-2 leading-tight">AI Persona Engine</h3>
+            <p className="text-[10px] sm:text-xs md:text-sm text-soft-silver-dark leading-tight">Analyze customer data to create detailed buyer personas and identify high-conversion targets</p>
           </div>
 
-          <div className="glass-effect rounded-2xl p-6 border border-aurora-purple/20 hover:border-aurora-purple/40 transition-all duration-300">
-            <div className="w-12 h-12 bg-aurora-gradient rounded-xl flex items-center justify-center mb-4 mx-auto aurora-glow">
-              <Sparkles className="w-6 h-6 text-deep-space" />
+          <div className="glass-effect rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-aurora-purple/20 hover:border-aurora-purple/40 transition-all duration-300">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-aurora-gradient rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 md:mb-4 mx-auto aurora-glow">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-deep-space" />
             </div>
-            <h3 className="text-xl font-semibold text-aurora-purple mb-2">Smart Channel Matching</h3>
-            <p className="text-soft-silver-dark">Automatically identify optimal platforms and generate Gen Z-friendly content</p>
+            <h3 className="text-xs sm:text-sm md:text-base lg:text-xl font-semibold text-aurora-purple mb-1 sm:mb-2 leading-tight">Smart Channel Matching</h3>
+            <p className="text-[10px] sm:text-xs md:text-sm text-soft-silver-dark leading-tight">Automatically identify optimal platforms and generate Gen Z-friendly content</p>
           </div>
 
-          <div className="glass-effect rounded-2xl p-6 border border-neon-coral/20 hover:border-neon-coral/40 transition-all duration-300">
-            <div className="w-12 h-12 bg-gradient-to-r from-neon-coral to-pink-500 rounded-xl flex items-center justify-center mb-4 mx-auto coral-glow">
-              <Zap className="w-6 h-6 text-deep-space" />
+          <div className="glass-effect rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-neon-coral/20 hover:border-neon-coral/40 transition-all duration-300">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-r from-neon-coral to-pink-500 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 md:mb-4 mx-auto coral-glow">
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-deep-space" />
             </div>
-            <h3 className="text-xl font-semibold text-neon-coral mb-2">Predictive Targeting</h3>
-            <p className="text-soft-silver-dark">Use AI to predict customer behavior and optimize marketing strategies for Gen Z audiences</p>
+            <h3 className="text-xs sm:text-sm md:text-base lg:text-xl font-semibold text-neon-coral mb-1 sm:mb-2 leading-tight">Predictive Targeting</h3>
+            <p className="text-[10px] sm:text-xs md:text-sm text-soft-silver-dark leading-tight">Use AI to predict customer behavior and optimize marketing strategies for Gen Z audiences</p>
           </div>
         </motion.div>
       </div>

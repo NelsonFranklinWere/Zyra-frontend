@@ -1,7 +1,7 @@
 "use client"
 
 import { Footer } from "@/components/shared/footer"
-import { Dashboard } from "@/components/sections/dashboard"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { 
   BarChart3, 
@@ -41,6 +41,48 @@ const quickActions = [
 ]
 
 export default function DashboardPage() {
+  const [range, setRange] = useState<'7d' | '30d' | '90d'>('7d')
+  const [perf, setPerf] = useState({
+    ctr: 0,
+    cvr: 0,
+    aov: 0,
+    roi: 0,
+    automationSuccess: 0,
+    dataProcessing: 0,
+    aiAccuracy: 0,
+  })
+
+  useEffect(() => {
+    let ignore = false
+    const fetchPerformance = async () => {
+      try {
+        const res = await fetch(`/api/performance?range=${range}`, { cache: 'no-store' })
+        if (!res.ok) throw new Error('Failed to load performance')
+        const data = await res.json()
+        if (ignore) return
+        setPerf({
+          ctr: data.ctr ?? 0,
+          cvr: data.cvr ?? 0,
+          aov: data.aov ?? 0,
+          roi: data.roi ?? 0,
+          automationSuccess: data.automationSuccess ?? 0,
+          dataProcessing: data.dataProcessing ?? 0,
+          aiAccuracy: data.aiAccuracy ?? 0,
+        })
+      } catch (e) {
+        // Fallback demo values per range
+        const demo: Record<typeof range, typeof perf> = {
+          '7d': { ctr: 5.8, cvr: 2.3, aov: 47, roi: 3.1, automationSuccess: 90, dataProcessing: 80, aiAccuracy: 95 },
+          '30d': { ctr: 6.2, cvr: 2.6, aov: 49, roi: 3.4, automationSuccess: 88, dataProcessing: 82, aiAccuracy: 94 },
+          '90d': { ctr: 5.4, cvr: 2.1, aov: 45, roi: 2.9, automationSuccess: 86, dataProcessing: 78, aiAccuracy: 93 },
+        }
+        if (!ignore) setPerf(demo[range])
+      }
+    }
+    fetchPerformance()
+    return () => { ignore = true }
+  }, [range])
+
   return (
     <div className="min-h-screen bg-zyra-gradient">
       <main className="py-8">
@@ -64,13 +106,13 @@ export default function DashboardPage() {
                 </p>
               </div>
               
-              <div className="flex items-center space-x-4">
-                <button className="glass-effect border border-electric-teal/30 text-electric-teal hover:bg-electric-teal/10 px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center space-x-2">
-                  <Download className="w-5 h-5" />
+              <div className="flex items-center space-x-3">
+                <button className="glass-effect border border-electric-teal/30 text-electric-teal hover:bg-electric-teal/10 px-3 py-2 md:px-5 md:py-3 rounded-xl text-xs md:text-sm font-semibold transition-all duration-300 flex items-center space-x-2">
+                  <Download className="w-4 h-4 md:w-5 md:h-5" />
                   <span>Export Data</span>
                 </button>
-                <button className="bg-electric-gradient hover:scale-105 transition-all duration-300 neon-glow text-lg px-6 py-3 rounded-xl font-semibold flex items-center space-x-2">
-                  <Plus className="w-5 h-5" />
+                <button className="bg-electric-gradient hover:scale-105 transition-all duration-300 neon-glow px-3 py-2 md:px-5 md:py-3 rounded-xl text-xs md:text-sm font-semibold flex items-center space-x-2">
+                  <Plus className="w-4 h-4 md:w-5 md:h-5" />
                   <span>New Automation</span>
                 </button>
               </div>
@@ -82,68 +124,69 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+            className="grid grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-10"
           >
-            {stats.map((stat, index) => (
-              <div key={stat.label} className="glass-effect rounded-2xl p-6 border border-soft-silver/10 hover:border-electric-teal/30 transition-all duration-300">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`w-12 h-12 bg-${stat.color}-gradient rounded-xl flex items-center justify-center neon-glow`}>
-                    <TrendingUp className="w-6 h-6 text-deep-space" />
+            {stats.map((stat) => (
+              <div key={stat.label} className="glass-effect rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 border border-soft-silver/10 hover:border-electric-teal/30 transition-all duration-300">
+                <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-${stat.color}-gradient rounded-lg md:rounded-xl flex items-center justify-center neon-glow`}>
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-deep-space" />
                   </div>
                   <div className="flex items-center text-electric-teal">
-                    <span className="text-sm font-medium">{stat.change}</span>
-                    <TrendingUp className="w-4 h-4 ml-1" />
+                    <span className="text-[10px] sm:text-xs md:text-sm font-medium">{stat.change}</span>
+                    <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
                   </div>
                 </div>
                 
-                <h3 className={`text-3xl font-bold text-${stat.color} mb-2`}>{stat.value}</h3>
-                <p className="text-soft-silver-dark">{stat.label}</p>
+                <h3 className={`text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-${stat.color} mb-1 sm:mb-2 leading-tight`}>{stat.value}</h3>
+                <p className="text-[10px] sm:text-xs md:text-sm text-soft-silver-dark leading-tight">{stat.label}</p>
               </div>
             ))}
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Recent Activity + Quick Actions in one row on small screens */}
+          <div className="grid grid-cols-2 gap-4 md:gap-6 mb-8">
             {/* Activity Feed */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="glass-effect rounded-2xl p-8 border border-soft-silver/10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="glass-effect rounded-2xl p-4 sm:p-6 border border-soft-silver/10"
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-aurora-gradient rounded-xl flex items-center justify-center aurora-glow">
-                    <Activity className="w-5 h-5 text-deep-space" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-aurora-gradient rounded-xl flex items-center justify-center aurora-glow">
+                    <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-deep-space" />
                   </div>
-                  <h3 className="text-2xl font-semibold text-aurora-purple">Recent Activity</h3>
+                  <h3 className="text-lg sm:text-xl font-semibold text-aurora-purple">Recent Activity</h3>
                 </div>
                 <button className="text-soft-silver hover:text-electric-teal transition-colors duration-300">
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
               
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {recentActivities.map((activity, index) => (
+              <div className="space-y-3 max-h-72 overflow-y-auto">
+            {recentActivities.map((activity) => (
                   <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="flex items-center space-x-4 p-4 rounded-xl bg-deep-space-light/50 hover:bg-deep-space-light/70 transition-colors duration-300"
+                key={activity.action + activity.time}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                    className="flex items-center space-x-3 p-3 rounded-xl bg-deep-space-light/50 hover:bg-deep-space-light/70 transition-colors duration-300"
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
                       activity.status === 'success' ? 'bg-electric-teal/20' : 'bg-neon-coral/20'
                     }`}>
                       {activity.status === 'success' ? (
-                        <CheckCircle className="w-4 h-4 text-electric-teal" />
+                        <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-electric-teal" />
                       ) : (
-                        <AlertCircle className="w-4 h-4 text-neon-coral" />
+                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-neon-coral" />
                       )}
                     </div>
                     
                     <div className="flex-1">
-                      <p className="text-soft-silver font-medium">{activity.action}</p>
-                      <p className="text-soft-silver-dark text-sm">{activity.time}</p>
+                      <p className="text-soft-silver text-xs sm:text-sm font-medium">{activity.action}</p>
+                      <p className="text-soft-silver-dark text-[10px] sm:text-xs">{activity.time}</p>
                     </div>
                     
                     <div className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -161,38 +204,39 @@ export default function DashboardPage() {
 
             {/* Quick Actions */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="glass-effect rounded-2xl p-8 border border-soft-silver/10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="glass-effect rounded-2xl p-4 sm:p-6 border border-soft-silver/10"
             >
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-r from-neon-coral to-pink-500 rounded-xl flex items-center justify-center coral-glow">
-                  <Zap className="w-5 h-5 text-deep-space" />
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-neon-coral to-pink-500 rounded-xl flex items-center justify-center coral-glow">
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-deep-space" />
                 </div>
-                <h3 className="text-2xl font-semibold text-neon-coral">Quick Actions</h3>
+                <h3 className="text-lg sm:text-xl font-semibold text-neon-coral">Quick Actions</h3>
               </div>
-              
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 {quickActions.map((action, index) => (
                   <motion.button
                     key={action.label}
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
+                    transition={{ duration: 0.4, delay: 0.4 + index * 0.05 }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`glass-effect border border-${action.color}/20 hover:border-${action.color}/40 p-4 rounded-xl text-center transition-all duration-300 group`}
+                    className={`glass-effect border border-${action.color}/20 hover:border-${action.color}/40 p-3 sm:p-4 rounded-xl text-center transition-all duration-300 group`}
                   >
-                    <action.icon className={`w-8 h-8 text-${action.color} mx-auto mb-2 group-hover:scale-110 transition-transform duration-300`} />
-                    <p className={`text-sm font-medium text-${action.color}`}>{action.label}</p>
+                    <action.icon className={`w-6 h-6 sm:w-8 sm:h-8 text-${action.color} mx-auto mb-2 group-hover:scale-110 transition-transform duration-300`} />
+                    <p className={`text-xs sm:text-sm font-medium text-${action.color}`}>{action.label}</p>
                   </motion.button>
                 ))}
               </div>
             </motion.div>
           </div>
 
-          {/* Performance Charts Section */}
+          {/* (Removed) First Performance Overview card - merged into the charts section below */}
+
+          {/* Performance Overview (Charts + KPIs) */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -207,22 +251,37 @@ export default function DashboardPage() {
                 <h3 className="text-2xl font-semibold text-electric-teal">Performance Overview</h3>
               </div>
               <div className="flex items-center space-x-2">
-                <button className="px-4 py-2 bg-electric-teal/10 text-electric-teal rounded-lg text-sm font-medium">7 Days</button>
-                <button className="px-4 py-2 text-soft-silver hover:text-electric-teal rounded-lg text-sm font-medium">30 Days</button>
-                <button className="px-4 py-2 text-soft-silver hover:text-electric-teal rounded-lg text-sm font-medium">90 Days</button>
+                <button
+                  onClick={() => setRange('7d')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium ${range === '7d' ? 'bg-electric-teal/10 text-electric-teal' : 'text-soft-silver hover:text-electric-teal'}`}
+                >
+                  7 Days
+                </button>
+                <button
+                  onClick={() => setRange('30d')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium ${range === '30d' ? 'bg-electric-teal/10 text-electric-teal' : 'text-soft-silver hover:text-electric-teal'}`}
+                >
+                  30 Days
+                </button>
+                <button
+                  onClick={() => setRange('90d')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium ${range === '90d' ? 'bg-electric-teal/10 text-electric-teal' : 'text-soft-silver hover:text-electric-teal'}`}
+                >
+                  90 Days
+                </button>
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Row 1: Automation metrics in a row */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="text-center">
                 <div className="w-24 h-24 mx-auto mb-4 relative">
                   <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-deep-space-light" />
                     <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="none" 
-                            strokeDasharray="251.2" strokeDashoffset="25.12" className="text-electric-teal" />
+                            strokeDasharray="251.2" strokeDashoffset={`${251.2 - (perf.automationSuccess / 100) * 251.2}`} className="text-electric-teal" />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-electric-teal">90%</span>
+                    <span className="text-2xl font-bold text-electric-teal">{perf.automationSuccess}%</span>
                   </div>
                 </div>
                 <p className="text-soft-silver font-medium">Automation Success</p>
@@ -233,10 +292,10 @@ export default function DashboardPage() {
                   <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-deep-space-light" />
                     <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="none" 
-                            strokeDasharray="251.2" strokeDashoffset="50.24" className="text-aurora-purple" />
+                            strokeDasharray="251.2" strokeDashoffset={`${251.2 - (perf.dataProcessing / 100) * 251.2}`} className="text-aurora-purple" />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-aurora-purple">80%</span>
+                    <span className="text-2xl font-bold text-aurora-purple">{perf.dataProcessing}%</span>
                   </div>
                 </div>
                 <p className="text-soft-silver font-medium">Data Processing</p>
@@ -247,13 +306,35 @@ export default function DashboardPage() {
                   <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-deep-space-light" />
                     <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="none" 
-                            strokeDasharray="251.2" strokeDashoffset="12.56" className="text-neon-coral" />
+                            strokeDasharray="251.2" strokeDashoffset={`${251.2 - (perf.aiAccuracy / 100) * 251.2}`} className="text-neon-coral" />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-neon-coral">95%</span>
+                    <span className="text-2xl font-bold text-neon-coral">{perf.aiAccuracy}%</span>
                   </div>
                 </div>
                 <p className="text-soft-silver font-medium">AI Accuracy</p>
+              </div>
+            </div>
+
+            {/* Row 2: KPIs from the first card */}
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="flex flex-col items-start">
+                  <span className="text-[10px] sm:text-xs text-soft-silver-dark">CTR</span>
+                  <span className="text-lg sm:text-xl font-semibold text-electric-teal">{perf.ctr}%</span>
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-[10px] sm:text-xs text-soft-silver-dark">CVR</span>
+                  <span className="text-lg sm:text-xl font-semibold text-aurora-purple">{perf.cvr}%</span>
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-[10px] sm:text-xs text-soft-silver-dark">AOV</span>
+                  <span className="text-lg sm:text-xl font-semibold text-neon-coral">${perf.aov}</span>
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-[10px] sm:text-xs text-soft-silver-dark">ROI</span>
+                  <span className="text-lg sm:text-xl font-semibold text-soft-silver">{perf.roi}x</span>
+                </div>
               </div>
             </div>
           </motion.div>

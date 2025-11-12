@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import { 
   Bot, 
   Send, 
@@ -18,7 +19,9 @@ import {
   BarChart3,
   Calendar,
   Mail,
-  Phone
+  Phone,
+  Home,
+  ArrowLeft
 } from 'lucide-react'
 
 interface ChatMessage {
@@ -181,6 +184,15 @@ export default function AssistantPage() {
       <div className="p-6 border-b border-zyra-glass-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            {/* Back Navigation */}
+            <Link
+              href="/dashboard"
+              className="p-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-colors"
+              title="Back to Dashboard"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            
             <div className="w-12 h-12 rounded-xl bg-zyra-electric-violet/20 flex items-center justify-center">
               <Bot className="w-6 h-6 text-zyra-electric-violet" />
             </div>
@@ -199,6 +211,14 @@ export default function AssistantPage() {
               <div className="w-2 h-2 bg-zyra-cyan-blue rounded-full animate-pulse" />
               <span className="text-sm text-zyra-text-secondary">AI Active</span>
             </div>
+            
+            <Link
+              href="/"
+              className="p-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-colors"
+              title="Go to Home"
+            >
+              <Home className="w-5 h-5" />
+            </Link>
             
             <motion.button
               className="p-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-colors"

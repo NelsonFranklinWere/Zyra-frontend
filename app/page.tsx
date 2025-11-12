@@ -94,7 +94,7 @@ export default function Home() {
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-12">
               {/* Data Upload Demo */}
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
@@ -103,9 +103,9 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="space-y-6"
               >
-                <div className="glass-card p-8 text-center">
-                  <h3 className="text-2xl font-cyber font-bold text-zyra-cyan-blue mb-4">Upload Your Data</h3>
-                  <p className="text-zyra-text-secondary mb-6">
+                <div className="glass-card p-4 sm:p-6 md:p-8 text-center">
+                  <h3 className="text-sm sm:text-base md:text-lg lg:text-2xl font-cyber font-bold text-zyra-cyan-blue mb-2 sm:mb-3 md:mb-4 leading-tight">Upload Your Data</h3>
+                  <p className="text-[10px] sm:text-xs md:text-sm lg:text-base text-zyra-text-secondary mb-3 sm:mb-4 md:mb-6 leading-tight">
                     Try our AI-powered data analysis with your own files
                   </p>
                   
@@ -117,7 +117,7 @@ export default function Home() {
                   ) : (
                     <motion.button
                       onClick={() => setShowDataUpload(true)}
-                      className="neon-button text-lg px-8 py-4 rounded-xl font-semibold"
+                      className="neon-button text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 rounded-lg sm:rounded-xl font-semibold"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -135,15 +135,15 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="space-y-6"
               >
-                <div className="glass-card p-8 text-center">
-                  <h3 className="text-2xl font-cyber font-bold text-zyra-electric-violet mb-4">Chat with Zyra AI</h3>
-                  <p className="text-zyra-text-secondary mb-6">
+                <div className="glass-card p-4 sm:p-6 md:p-8 text-center">
+                  <h3 className="text-sm sm:text-base md:text-lg lg:text-2xl font-cyber font-bold text-zyra-electric-violet mb-2 sm:mb-3 md:mb-4 leading-tight">Chat with Zyra AI</h3>
+                  <p className="text-[10px] sm:text-xs md:text-sm lg:text-base text-zyra-text-secondary mb-3 sm:mb-4 md:mb-6 leading-tight">
                     Ask questions and get intelligent insights about your data
                   </p>
                   
                   <motion.button
                     onClick={() => setShowAIChat(true)}
-                    className="cyber-button text-lg px-8 py-4 rounded-xl font-semibold"
+                    className="cyber-button text-xs sm:text-sm md:text-base lg:text-lg px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 rounded-lg sm:rounded-xl font-semibold"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >

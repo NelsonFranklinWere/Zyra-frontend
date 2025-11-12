@@ -6,9 +6,7 @@ import {
   Zap, 
   BarChart3, 
   Workflow, 
-  Database, 
   Shield, 
-  Clock, 
   Users,
   ArrowRight,
   Sparkles
@@ -61,7 +59,7 @@ const features = [
 
 export const Features = () => {
   return (
-    <section className="py-32 px-4">
+    <section className="pt-12 sm:pt-16 md:pt-20 pb-32 px-4">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -86,7 +84,7 @@ export const Features = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -94,23 +92,23 @@ export const Features = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="glass-effect rounded-2xl p-8 border border-soft-silver/10 hover:border-electric-teal/30 transition-all duration-300 group"
+              className="glass-effect rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border border-soft-silver/10 hover:border-electric-teal/30 transition-all duration-300 group"
             >
-              <div className={`w-16 h-16 bg-${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                <feature.icon className="w-8 h-8 text-deep-space" />
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-${feature.gradient} rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-deep-space" />
               </div>
               
-              <h3 className={`text-2xl font-semibold text-${feature.color} mb-4`}>
+              <h3 className={`text-sm sm:text-base md:text-lg lg:text-2xl font-semibold text-${feature.color} mb-2 sm:mb-3 md:mb-4 leading-tight`}>
                 {feature.title}
               </h3>
               
-              <p className="text-soft-silver-dark mb-6 leading-relaxed">
+              <p className="text-[10px] sm:text-xs md:text-sm lg:text-base text-soft-silver-dark mb-3 sm:mb-4 md:mb-6 leading-tight sm:leading-relaxed">
                 {feature.description}
               </p>
               
               <div className="flex items-center text-electric-teal group-hover:text-electric-teal-dark transition-colors duration-300">
-                <span className="text-sm font-medium">Learn more</span>
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                <span className="text-[10px] sm:text-xs md:text-sm font-medium">Learn more</span>
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform duration-300" />
               </div>
             </motion.div>
           ))}

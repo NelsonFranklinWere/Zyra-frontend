@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { 
   Send, 
   Bot, 
@@ -21,7 +22,9 @@ import {
   Brain,
   Target,
   MessageSquare,
-  TrendingUp
+  TrendingUp,
+  Home,
+  ArrowLeft
 } from 'lucide-react';
 
 interface Message {
@@ -205,6 +208,14 @@ const AIChatEnhanced: React.FC = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
+              {/* Back/Home Navigation */}
+              <Link
+                href="/"
+                className="p-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+              
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl bg-neon-gradient flex items-center justify-center">
                   <Bot className="w-6 h-6 text-white" />
@@ -240,6 +251,14 @@ const AIChatEnhanced: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-2">
+                <Link
+                  href="/dashboard"
+                  className="p-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300"
+                  title="Go to Dashboard"
+                >
+                  <Home className="w-4 h-4" />
+                </Link>
+                
                 <motion.button
                   onClick={() => setShowSettings(!showSettings)}
                   className="p-2 rounded-lg text-zyra-text-secondary hover:text-white hover:bg-white/5 transition-all duration-300"

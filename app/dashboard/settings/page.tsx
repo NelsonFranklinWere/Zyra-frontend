@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   User, 
@@ -21,6 +21,9 @@ import {
   Check,
   X
 } from 'lucide-react'
+import { useAuth } from '@/contexts/auth-context'
+import apiClient from '@/lib/api-client'
+import toast from 'react-hot-toast'
 
 interface SettingSection {
   id: string
@@ -83,8 +86,22 @@ const settingSections: SettingSection[] = [
 ]
 
 export default function SettingsPage() {
+  const { user, updateUser } = useAuth()
   const [activeSection, setActiveSection] = useState('profile')
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [profileData, setProfileData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
+  })
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
@@ -95,66 +112,233 @@ export default function SettingsPage() {
   const [theme, setTheme] = useState('dark')
   const [language, setLanguage] = useState('en')
 
-  const handleSave = () => {
-    console.log('Settings saved')
+  // Fetch user profile data on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        setIsLoading(true)
+        const result = await apiClient.getProfile()
+        
+        if (result.success && result.data) {
+          setProfileData({
+            firstName: result.data.firstName || '',
+            lastName: result.data.lastName || '',
+            email: result.data.email || '',
+            phone: result.data.phone || ''
+          })
+          
+          // Load preferences (notifications, theme, language)
+          if (result.data.preferences) {
+            const prefs = result.data.preferences
+            if (prefs.notifications) {
+              setNotifications({
+                email: prefs.notifications.email !== undefined ? prefs.notifications.email : true,
+                push: prefs.notifications.push !== undefined ? prefs.notifications.push : true,
+                sms: prefs.notifications.sms !== undefined ? prefs.notifications.sms : false,
+                automation: prefs.notifications.automation !== undefined ? prefs.notifications.automation : true,
+                ai: prefs.notifications.ai !== undefined ? prefs.notifications.ai : true
+              })
+            }
+            if (prefs.theme) setTheme(prefs.theme)
+            if (prefs.language) setLanguage(prefs.language)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error)
+        toast.error('Failed to load profile data')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchProfile()
+  }, [user])
+
+  const handleSave = async () => {
+    if (activeSection === 'profile') {
+      setIsSaving(true)
+      try {
+        const result = await apiClient.updateProfile(profileData)
+        
+        if (result.success) {
+          // Update the user in context
+          if (user) {
+            updateUser({
+              ...user,
+              firstName: profileData.firstName,
+              lastName: profileData.lastName,
+              email: profileData.email
+            })
+          }
+          toast.success('Profile updated successfully')
+        } else {
+          toast.error(result.message || 'Failed to update profile')
+        }
+      } catch (error: any) {
+        console.error('Error updating profile:', error)
+        toast.error(error.message || 'Failed to update profile')
+      } finally {
+        setIsSaving(false)
+      }
+    } else if (activeSection === 'security') {
+      if (passwordData.newPassword !== passwordData.confirmPassword) {
+        toast.error('New passwords do not match')
+        return
+      }
+
+      if (passwordData.newPassword.length < 8) {
+        toast.error('Password must be at least 8 characters')
+        return
+      }
+
+      setIsSaving(true)
+      try {
+        const result = await apiClient.changePassword(
+          passwordData.currentPassword,
+          passwordData.newPassword
+        )
+        
+        if (result.success) {
+          toast.success('Password changed successfully')
+          setPasswordData({
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+          })
+        } else {
+          toast.error(result.message || 'Failed to change password')
+        }
+      } catch (error: any) {
+        console.error('Error changing password:', error)
+        toast.error(error.message || 'Failed to change password')
+      } finally {
+        setIsSaving(false)
+      }
+    } else if (activeSection === 'notifications') {
+      setIsSaving(true)
+      try {
+        // Save notification preferences
+        const preferences = {
+          notifications,
+          theme,
+          language
+        }
+        const result = await apiClient.updateProfile({ preferences })
+        
+        if (result.success) {
+          toast.success('Notification preferences saved')
+        } else {
+          toast.error(result.message || 'Failed to save preferences')
+        }
+      } catch (error: any) {
+        console.error('Error saving preferences:', error)
+        toast.error(error.message || 'Failed to save preferences')
+      } finally {
+        setIsSaving(false)
+      }
+    } else if (activeSection === 'appearance') {
+      setIsSaving(true)
+      try {
+        // Save theme and language preferences
+        const preferences = {
+          notifications,
+          theme,
+          language
+        }
+        const result = await apiClient.updateProfile({ preferences })
+        
+        if (result.success) {
+          toast.success('Appearance settings saved')
+        } else {
+          toast.error(result.message || 'Failed to save settings')
+        }
+      } catch (error: any) {
+        console.error('Error saving appearance:', error)
+        toast.error(error.message || 'Failed to save settings')
+      } finally {
+        setIsSaving(false)
+      }
+    } else {
+      toast.success('Settings saved')
+    }
   }
 
-  const renderProfileSection = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Personal Information</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">First Name</label>
-            <input
-              type="text"
-              defaultValue="John"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">Last Name</label>
-            <input
-              type="text"
-              defaultValue="Doe"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">Email</label>
-            <input
-              type="email"
-              defaultValue="john.doe@example.com"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">Phone</label>
-            <input
-              type="tel"
-              defaultValue="+1 (555) 123-4567"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
-            />
-          </div>
+  const renderProfileSection = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zyra-electric-violet"></div>
         </div>
-      </div>
+      )
+    }
 
-      <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Profile Picture</h3>
-        <div className="flex items-center space-x-4">
-          <div className="w-20 h-20 rounded-full bg-zyra-electric-violet/20 flex items-center justify-center">
-            <User className="w-8 h-8 text-zyra-electric-violet" />
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4">Personal Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">First Name</label>
+              <input
+                type="text"
+                value={profileData.firstName}
+                onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Last Name</label>
+              <input
+                type="text"
+                value={profileData.lastName}
+                onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Email</label>
+              <input
+                type="email"
+                value={profileData.email}
+                onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Phone</label>
+              <input
+                type="tel"
+                value={profileData.phone}
+                onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                placeholder="+1 (555) 123-4567"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <button className="px-4 py-2 bg-zyra-electric-violet hover:bg-zyra-electric-violet/80 text-white rounded-lg transition-colors">
-              Upload Photo
-            </button>
-            <p className="text-sm text-zyra-text-secondary">JPG, PNG or GIF. Max size 2MB.</p>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4">Profile Picture</h3>
+          <div className="flex items-center space-x-4">
+            <div className="w-20 h-20 rounded-full bg-zyra-electric-violet/20 flex items-center justify-center">
+              <User className="w-8 h-8 text-zyra-electric-violet" />
+            </div>
+            <div className="space-y-2">
+              <button className="px-4 py-2 bg-zyra-electric-violet hover:bg-zyra-electric-violet/80 text-white rounded-lg transition-colors">
+                Upload Photo
+              </button>
+              <p className="text-sm text-zyra-text-secondary">JPG, PNG or GIF. Max size 2MB.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderNotificationsSection = () => (
     <div className="space-y-6">
@@ -199,6 +383,8 @@ export default function SettingsPage() {
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white pr-12"
               />
               <button
@@ -213,6 +399,8 @@ export default function SettingsPage() {
             <label className="block text-sm font-medium text-white mb-2">New Password</label>
             <input
               type="password"
+              value={passwordData.newPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
             />
           </div>
@@ -220,6 +408,8 @@ export default function SettingsPage() {
             <label className="block text-sm font-medium text-white mb-2">Confirm New Password</label>
             <input
               type="password"
+              value={passwordData.confirmPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-zyra-cyan-blue focus:ring-2 focus:ring-zyra-cyan-blue/20 transition-colors text-white"
             />
           </div>
@@ -413,12 +603,22 @@ export default function SettingsPage() {
             </button>
             <motion.button
               onClick={handleSave}
-              className="flex items-center space-x-2 px-6 py-3 bg-zyra-electric-violet hover:bg-zyra-electric-violet/80 text-white rounded-xl font-medium transition-colors"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={isSaving}
+              className="flex items-center space-x-2 px-6 py-3 bg-zyra-electric-violet hover:bg-zyra-electric-violet/80 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-colors"
+              whileHover={{ scale: isSaving ? 1 : 1.02 }}
+              whileTap={{ scale: isSaving ? 1 : 0.98 }}
             >
-              <Save className="w-5 h-5" />
-              <span>Save Changes</span>
+              {isSaving ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5" />
+                  <span>Save Changes</span>
+                </>
+              )}
             </motion.button>
           </div>
         </div>

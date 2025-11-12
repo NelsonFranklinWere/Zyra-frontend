@@ -117,7 +117,7 @@ export default function AutomationPage() {
             className="mb-12"
           >
             <h2 className="text-2xl font-semibold text-soft-silver mb-6">Workflow Templates</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {workflowTemplates.map((template, index) => (
                 <motion.div
                   key={template.id}
@@ -125,33 +125,33 @@ export default function AutomationPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
-                  className="glass-effect rounded-2xl p-6 border border-soft-silver/10 hover:border-aurora-purple/30 transition-all duration-300 group cursor-pointer"
+                  className="glass-effect rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-soft-silver/10 hover:border-aurora-purple/30 transition-all duration-300 group cursor-pointer"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 bg-${template.color}-gradient rounded-xl flex items-center justify-center neon-glow`}>
-                      <template.icon className="w-6 h-6 text-deep-space" />
+                  <div className="flex items-center justify-between mb-2 sm:mb-4">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-${template.color}-gradient rounded-lg sm:rounded-xl flex items-center justify-center neon-glow`}>
+                      <template.icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-deep-space" />
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${
+                    <div className="flex items-center space-x-1 sm:space-x-2">
+                      <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
                         template.status === 'active' ? 'bg-electric-teal' :
                         template.status === 'paused' ? 'bg-neon-coral' :
                         'bg-soft-silver'
                       }`}></div>
-                      <span className="text-xs text-soft-silver-dark capitalize">{template.status}</span>
+                      <span className="text-[10px] sm:text-xs text-soft-silver-dark capitalize hidden sm:inline">{template.status}</span>
                     </div>
                   </div>
                   
-                  <h3 className="text-lg font-semibold text-soft-silver mb-2">{template.name}</h3>
-                  <p className="text-soft-silver-dark text-sm mb-4">{template.description}</p>
+                  <h3 className="text-sm sm:text-base md:text-lg font-semibold text-soft-silver mb-1 sm:mb-2 line-clamp-1">{template.name}</h3>
+                  <p className="text-soft-silver-dark text-[10px] sm:text-xs md:text-sm mb-2 sm:mb-4 line-clamp-2">{template.description}</p>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-soft-silver-dark">{template.nodes} nodes</span>
-                    <div className="flex items-center space-x-2">
-                      <button className="p-1 hover:bg-aurora-purple/10 rounded transition-colors duration-300">
-                        <Play className="w-4 h-4 text-aurora-purple" />
+                    <span className="text-[10px] sm:text-xs text-soft-silver-dark">{template.nodes} nodes</span>
+                    <div className="flex items-center space-x-1 sm:space-x-2">
+                      <button className="p-0.5 sm:p-1 hover:bg-aurora-purple/10 rounded transition-colors duration-300">
+                        <Play className="w-3 h-3 sm:w-4 sm:h-4 text-aurora-purple" />
                       </button>
-                      <button className="p-1 hover:bg-soft-silver/10 rounded transition-colors duration-300">
-                        <Settings className="w-4 h-4 text-soft-silver" />
+                      <button className="p-0.5 sm:p-1 hover:bg-soft-silver/10 rounded transition-colors duration-300">
+                        <Settings className="w-3 h-3 sm:w-4 sm:h-4 text-soft-silver" />
                       </button>
                     </div>
                   </div>
@@ -182,26 +182,26 @@ export default function AutomationPage() {
             </div>
 
             <div className="glass-effect rounded-2xl p-6 border border-soft-silver/10">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Node Palette */}
-                <div className="lg:col-span-1">
+              <div className="space-y-6">
+                {/* Node Types - Horizontal Row */}
+                <div>
                   <h3 className="text-lg font-semibold text-soft-silver mb-4">Node Types</h3>
-                  <div className="space-y-3">
+                  <div className="flex flex-wrap gap-3 sm:gap-4">
                     {nodeTypes.map((node, index) => (
                       <motion.div
                         key={node.type}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className={`glass-effect border border-${node.color}/20 hover:border-${node.color}/40 p-3 rounded-xl cursor-pointer transition-all duration-300 group`}
+                        className={`glass-effect border border-${node.color}/20 hover:border-${node.color}/40 p-2 sm:p-3 rounded-lg sm:rounded-xl cursor-pointer transition-all duration-300 group flex-shrink-0`}
                       >
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-8 h-8 bg-${node.color}-gradient rounded-lg flex items-center justify-center`}>
-                            <node.icon className="w-4 h-4 text-deep-space" />
+                        <div className="flex items-center space-x-2 sm:space-x-3">
+                          <div className={`w-6 h-6 sm:w-8 sm:h-8 bg-${node.color}-gradient rounded-lg flex items-center justify-center`}>
+                            <node.icon className="w-3 h-3 sm:w-4 sm:h-4 text-deep-space" />
                           </div>
-                          <span className="text-sm font-medium text-soft-silver">{node.label}</span>
+                          <span className="text-xs sm:text-sm font-medium text-soft-silver whitespace-nowrap">{node.label}</span>
                         </div>
                       </motion.div>
                     ))}
@@ -209,7 +209,7 @@ export default function AutomationPage() {
                 </div>
 
                 {/* Canvas Area */}
-                <div className="lg:col-span-3">
+                <div>
                   <div className="relative h-96 bg-deep-space-light/30 rounded-xl border border-soft-silver/10 overflow-hidden">
                     {/* Sample Workflow Nodes */}
                     <div className="absolute inset-0 p-6">

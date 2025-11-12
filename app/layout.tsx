@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '../styles/globals.css'
 import { AuthProvider } from '@/contexts/auth-context'
+import { SettingsProvider } from '@/contexts/settings-context'
 import { Toaster } from 'react-hot-toast'
 import { HeaderWrapper } from '@/components/shared/header-wrapper'
 
@@ -74,19 +75,21 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <HeaderWrapper />
-          {children}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: 'rgba(0, 0, 0, 0.8)',
-                color: '#fff',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-              },
-            }}
-          />
+          <SettingsProvider>
+            <HeaderWrapper />
+            {children}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  color: '#fff',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backdropFilter: 'blur(10px)',
+                },
+              }}
+            />
+          </SettingsProvider>
         </AuthProvider>
       </body>
     </html>

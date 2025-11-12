@@ -5,6 +5,9 @@ interface ApiResponse<T = any> {
   message: string
   data?: T
   errors?: any[]
+  warnings?: string[]
+  certifications_preserved?: boolean
+  cv_id?: string | null
 }
 
 class ApiClient {
@@ -31,13 +34,17 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit & { isFormData?: boolean } = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`
-    
+    const { isFormData, ...fetchOptions } = options
+
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string> || {}),
+      ...(fetchOptions.headers as Record<string, string> || {}),
+    }
+
+    if (!isFormData) {
+      headers['Content-Type'] = headers['Content-Type'] || 'application/json'
     }
 
     if (this.token) {
@@ -46,7 +53,7 @@ class ApiClient {
 
     try {
       const response = await fetch(url, {
-        ...options,
+        ...fetchOptions,
         headers,
       })
 
@@ -128,6 +135,31 @@ class ApiClient {
     })
   }
 
+  async uploadAvatar(file: File): Promise<any> {
+    const formData = new FormData()
+    formData.append('avatar', file)
+    
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const response = await fetch(`${this.baseURL}/auth/avatar`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Failed to upload avatar' }))
+      throw new Error(error.message || 'Failed to upload avatar')
+    }
+
+    return response.json()
+  }
+
   async logout() {
     return this.request('/auth/logout', {
       method: 'POST',
@@ -178,6 +210,55 @@ class ApiClient {
     return this.request('/auth/unlink-google', {
       method: 'POST',
     })
+  }
+
+  // CV AI endpoints
+  async enhanceCV(cvData: any) {
+    return this.request('/ai/cv/enhance', {
+      method: 'POST',
+      body: JSON.stringify(cvData),
+    })
+  }
+
+  async getCVSuggestions(type: string, currentData: any) {
+    return this.request('/ai/cv/suggest', {
+      method: 'POST',
+      body: JSON.stringify({ type, currentData }),
+    })
+  }
+
+  async generateInterviewQuestion(payload: {
+    collectedData: Record<string, unknown>
+    conversationHistory: Array<{ role: 'ai' | 'user'; content: string }>
+    currentStep: string
+    interviewType: 'comprehensive' | 'quick'
+  }) {
+    return this.request('/ai/interview/question', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  }
+
+  async calculateSkillConfidence(skills: any[]) {
+    return this.request('/ai/cv/confidence', {
+      method: 'POST',
+      body: JSON.stringify({ skills }),
+    })
+  }
+
+  async saveCV(cvData: any, cvId?: string) {
+    return this.request('/ai/cv/save', {
+      method: 'POST',
+      body: JSON.stringify({ id: cvId, cvData }),
+    })
+  }
+
+  async listCVs() {
+    return this.request('/ai/cv/list')
+  }
+
+  async getCV(cvId: string) {
+    return this.request(`/ai/cv/${cvId}`)
   }
 }
 
